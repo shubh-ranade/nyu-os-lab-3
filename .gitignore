@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+mmu
+
+# I/O directories
+geninputs/*
+refout/*
+myout/*
+genrefout/*
+genmyout/*

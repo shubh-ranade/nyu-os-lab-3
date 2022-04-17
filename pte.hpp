@@ -16,7 +16,7 @@ typedef struct
 
 typedef struct
 {
-    unsigned int procid, vpage;
+    unsigned int procid, vpage, age;
     pte_t* pte_ref;
 } frame_t;
 

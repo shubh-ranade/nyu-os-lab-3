@@ -33,4 +33,12 @@ public:
     frame_t* select_victim_frame(frame_t* frame_table);
 };
 
+class AGINGPager : public Pager {
+private:
+    int hand;
+public:
+    AGINGPager();
+    frame_t* select_victim_frame(frame_t* frame_table);
+};
+
 #endif

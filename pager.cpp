@@ -7,6 +7,7 @@ NRUPager::NRUPager()
     : last_invocation(0)
     , hand(0)
 {}
+AGINGPager::AGINGPager() : hand(0) {}
 
 frame_t* FIFOPager::select_victim_frame(frame_t* frame_table) {
     frame_t* victim;
@@ -56,5 +57,35 @@ frame_t* NRUPager::select_victim_frame(frame_t* frame_table) {
 
     if(aopt) printf("ASELECT: hand=%d %d | %d %ld %d\n", start, reset_ref, min_class, victim - frame_table, num_scanned);
     
+    return victim;
+}
+
+frame_t* AGINGPager::select_victim_frame(frame_t* frame_table) {
+    frame_t* victim = nullptr;
+    unsigned int min_age = 1 << 31, curr_age;
+    this->hand = this->hand % MAX_FRAMES;
+    int i = this->hand, start = this->hand;
+    int prev = start == 0 ? MAX_FRAMES - 1 : start - 1;
+    if(aopt) printf("ASELECT %d-%d |", start, prev);
+    
+    do {
+        // calculate new age
+        curr_age = frame_table[i].age >> 1;
+        curr_age = frame_table[i].pte_ref->referenced ? curr_age | 0x80000000 : curr_age;
+        frame_table[i].pte_ref->referenced = 0;
+        frame_table[i].age = curr_age;
+        if(aopt) printf(" %d:%x", i, curr_age);
+        if(curr_age < min_age || victim == nullptr) {
+            victim = frame_table + i;
+            min_age = curr_age;
+        }
+        i++;
+        i = i % MAX_FRAMES;
+    } while(i != start);
+
+    this->hand = (victim - frame_table + 1) % MAX_FRAMES;
+
+    if(aopt) printf(" | %ld\n", victim - frame_table);
+
     return victim;
 }

@@ -170,6 +170,7 @@ void run_simulation(ifstream& f, vector<Process*>& procs, frame_t* frame_table) 
             newframe->procid = current_process->getId();
             newframe->vpage = vpage;
             newframe->pte_ref = pte;
+            newframe->age = 0;
         }
         
         // check write protection
@@ -346,6 +347,7 @@ int main(int argc, char** argv) {
         break;
 
     case 'a':
+        PAGER = new AGINGPager();
         break;
     
     case 'w':

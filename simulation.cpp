@@ -28,6 +28,7 @@ unsigned long instr_count = 0, ctx_switches = 0, num_proc_exits = 0;
 unsigned long long total_cost = 0;
 
 unsigned int MAX_FRAMES;
+bool aopt = false;
 Pager* PAGER;
 deque<frame_t*> frame_pool;
 
@@ -282,6 +283,10 @@ int main(int argc, char** argv) {
             sopt = true;
             break;
         
+        case 'a':
+            aopt = true;
+            break;
+
         default:
             printf("Ignoring unknown opt %s\n", spec);
             break;
@@ -337,6 +342,7 @@ int main(int argc, char** argv) {
         break;
 
     case 'e':
+        PAGER = new NRUPager();
         break;
 
     case 'a':

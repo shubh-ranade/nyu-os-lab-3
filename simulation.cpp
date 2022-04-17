@@ -127,9 +127,6 @@ void run_simulation(ifstream& f, vector<Process*>& procs, frame_t* frame_table) 
         // now the real instructions for read and write
         pte_t* pte = current_process->getPte(vpage);
 
-        // print_process(current_process);
-        // cout << "PTE valid: " << pte->valid << endl;
-
         if (!pte->valid) {
             // this in reality generates the page fault exception and now you execute
             // verify this is actually a valid page in a vma if not raise error and next inst
@@ -329,13 +326,14 @@ int main(int argc, char** argv) {
     switch (algo_type)
     {
     case 'f':
-        PAGER = new FIFOPager();
+        PAGER = new FIFOPager(false);
         break;
     
     case 'r':
         break;
 
     case 'c':
+        PAGER = new FIFOPager(true);
         break;
 
     case 'e':

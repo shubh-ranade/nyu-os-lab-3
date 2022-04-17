@@ -11,8 +11,9 @@ public:
 class FIFOPager : public Pager {
 private:
     int hand;
+    bool second_chance;
 public:
-    FIFOPager();
+    FIFOPager(bool is_clock);
     frame_t* select_victim_frame(frame_t* frame_table);
 };
 

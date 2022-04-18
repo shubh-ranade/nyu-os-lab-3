@@ -72,7 +72,8 @@ bool get_next_instruction(ifstream& f, char* op, int* vpage) {
     return true;
 }
 
-void cleanup(vector<Process*>& procs, frame_t* frame_table, Pager* pager) {
+void cleanup(vector<Process*>& procs, frame_t* frame_table, Pager* pager, unsigned long long* rand_list) {
+    delete [] rand_list;
     delete pager;
     delete [] frame_table;
     for(auto proc : procs) delete proc;

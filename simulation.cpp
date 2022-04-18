@@ -31,6 +31,8 @@ unsigned int MAX_FRAMES;
 bool aopt = false;
 Pager* PAGER;
 deque<frame_t*> frame_pool;
+unsigned long long* rand_list;
+unsigned long long rand_offset = 0, randcount;
 
 frame_t* allocate_frame_from_free_list() {
     if(frame_pool.empty())
@@ -323,6 +325,14 @@ int main(int argc, char** argv) {
     input.open(argv[optind]);
     string buffer;
 
+    // open randfile
+    ifstream randfile;
+    randfile.open(argv[optind+1]);
+    randfile >> randcount;
+    rand_list = new unsigned long long [randcount];
+    for(unsigned long long i = 0; i < randcount; i++) randfile >> rand_list[i];
+    randfile.close();
+
     MAX_FRAMES = f_arg;
     frame_t* frame_table = new frame_t[MAX_FRAMES]{};
     for(int i = 0; i < MAX_FRAMES; i++) // all frames are in the free pool initially
@@ -336,6 +346,7 @@ int main(int argc, char** argv) {
         break;
     
     case 'r':
+        PAGER = new RANDOMPager();
         break;
 
     case 'c':
@@ -399,7 +410,8 @@ int main(int argc, char** argv) {
     // TODO: insert simulation code here
     run_simulation(input, procs, frame_table);
 
-    cleanup(procs, frame_table, PAGER);
+    cleanup(procs, frame_table, PAGER, rand_list);
+    input.close();
 
     return EXIT_SUCCESS;
 }

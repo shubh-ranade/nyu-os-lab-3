@@ -21,6 +21,13 @@ frame_t* FIFOPager::select_victim_frame(frame_t* frame_table) {
     return victim;
 }
 
+frame_t* RANDOMPager::select_victim_frame(frame_t* frame_table) {
+    rand_offset = rand_offset % randcount;
+    frame_t* victim = frame_table + (rand_list[rand_offset] % MAX_FRAMES);
+    rand_offset++;
+    return victim;
+}
+
 frame_t* NRUPager::select_victim_frame(frame_t* frame_table) {
     bool reset_ref = instr_count - this->last_invocation >= NRU_WINDOW;
     if(reset_ref) this->last_invocation = instr_count;

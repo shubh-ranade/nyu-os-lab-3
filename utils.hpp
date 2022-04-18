@@ -11,6 +11,6 @@ void print_processes(std::vector<Process*>& procs);
 void print_process(Process* proc);
 std::string getline_clean(std::ifstream& f);
 bool get_next_instruction(std::ifstream& f, char* op, int* vpage);
-void cleanup(std::vector<Process*>& procs, frame_t* frame_table, Pager* pager);
+void cleanup(std::vector<Process*>& procs, frame_t* frame_table, Pager* pager, unsigned long long* rand_list);
 
 #endif

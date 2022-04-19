@@ -143,7 +143,6 @@ void run_simulation(ifstream& f, vector<Process*>& procs, frame_t* frame_table) 
             }
             frame_t *newframe = get_frame(frame_table);
             unsigned long addr = newframe - frame_table; // pointer arithmetic
-            printf("%lu got frame number %lu", instr_count-1, addr);
             //-> figure out if/what to do with old frame if it was mapped
             // see general outline in MM-slides under Lab3 header and writeup below
             // see whether and how to bring in the content of the access page.

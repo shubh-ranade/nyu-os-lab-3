@@ -99,12 +99,19 @@ frame_t* AGINGPager::select_victim_frame(frame_t* frame_table) {
 }
 
 frame_t* WSPager::select_victim_frame(frame_t* frame_table) {
-    int lowest = -1000;
+    unsigned long oldest = 0;
     frame_t* victim = nullptr;
+    int start = this->hand, prev;
+    prev = start == 0 ? MAX_FRAMES - 1 : start - 1;
+
+    if(aopt) printf("ASELECT %d-%d |", start, prev);
+
     for(int i = 0; i < MAX_FRAMES; i++) {
-        frame_t* current_frame = frame_table + (this->hand + i);
+        frame_t* current_frame = frame_table + ((this->hand + i) % MAX_FRAMES);
         pte_t* curr_pte = current_frame->pte_ref;
         unsigned long age = instr_count - 1 - current_frame->timestamp_last_used;
+
+        if(aopt) printf(" %d(%d %d:%d %lu)", (this->hand + i) % MAX_FRAMES, curr_pte->referenced, current_frame->procid, current_frame->vpage, current_frame->timestamp_last_used);
 
         if(curr_pte->referenced) {
             curr_pte->referenced = 0;
@@ -113,17 +120,19 @@ frame_t* WSPager::select_victim_frame(frame_t* frame_table) {
             if(age >= WS_TAU) {
                 victim = current_frame;
                 this->hand = (victim - frame_table + 1) % MAX_FRAMES;
-                return victim;
-            } else if (age > lowest) {
-                lowest = age;
+                break;
+            } else if (age > oldest) {
+                oldest = age;
                 victim = current_frame;
             }
         }
     }
 
-    if(victim == nullptr) victim = frame_table + (this->hand);
+    if(victim == nullptr) victim = frame_table + this->hand;
 
     this->hand = (victim - frame_table + 1) % MAX_FRAMES;
+
+    if(aopt) printf(" | %ld\n", victim - frame_table);
 
     return victim;
 }

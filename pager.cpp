@@ -8,6 +8,7 @@ NRUPager::NRUPager()
     , hand(0)
 {}
 AGINGPager::AGINGPager() : hand(0) {}
+WSPager::WSPager() : hand(0) {}
 
 frame_t* FIFOPager::select_victim_frame(frame_t* frame_table) {
     frame_t* victim;
@@ -69,7 +70,7 @@ frame_t* NRUPager::select_victim_frame(frame_t* frame_table) {
 
 frame_t* AGINGPager::select_victim_frame(frame_t* frame_table) {
     frame_t* victim = nullptr;
-    unsigned int min_age = 1 << 31, curr_age;
+    unsigned int min_age = 1 << (sizeof(int) - 1), curr_age;
     this->hand = this->hand % MAX_FRAMES;
     int i = this->hand, start = this->hand;
     int prev = start == 0 ? MAX_FRAMES - 1 : start - 1;
@@ -93,6 +94,36 @@ frame_t* AGINGPager::select_victim_frame(frame_t* frame_table) {
     this->hand = (victim - frame_table + 1) % MAX_FRAMES;
 
     if(aopt) printf(" | %ld\n", victim - frame_table);
+
+    return victim;
+}
+
+frame_t* WSPager::select_victim_frame(frame_t* frame_table) {
+    int lowest = -1000;
+    frame_t* victim = nullptr;
+    for(int i = 0; i < MAX_FRAMES; i++) {
+        frame_t* current_frame = frame_table + (this->hand + i);
+        pte_t* curr_pte = current_frame->pte_ref;
+        unsigned long age = instr_count - 1 - current_frame->timestamp_last_used;
+
+        if(curr_pte->referenced) {
+            curr_pte->referenced = 0;
+            current_frame->timestamp_last_used = instr_count - 1;
+        } else {
+            if(age >= WS_TAU) {
+                victim = current_frame;
+                this->hand = (victim - frame_table + 1) % MAX_FRAMES;
+                return victim;
+            } else if (age > lowest) {
+                lowest = age;
+                victim = current_frame;
+            }
+        }
+    }
+
+    if(victim == nullptr) victim = frame_table + (this->hand);
+
+    this->hand = (victim - frame_table + 1) % MAX_FRAMES;
 
     return victim;
 }

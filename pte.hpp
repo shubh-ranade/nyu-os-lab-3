@@ -17,6 +17,7 @@ typedef struct
 typedef struct
 {
     unsigned int procid, vpage, age;
+    unsigned long timestamp_last_used;
     pte_t* pte_ref;
 } frame_t;
 

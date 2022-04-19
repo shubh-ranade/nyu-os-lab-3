@@ -93,6 +93,7 @@ void exit_process(Process* proc, frame_t* frame_table) {
         frame_t* used_frame = frame_table + pte->frame_number;
         // reset frame, return free pool
         used_frame->pte_ref = NULL;
+        used_frame->timestamp_last_used = 0;
         frame_pool.push_back(used_frame);
 
         *pte = {};
@@ -141,7 +142,8 @@ void run_simulation(ifstream& f, vector<Process*>& procs, frame_t* frame_table) 
                 continue;
             }
             frame_t *newframe = get_frame(frame_table);
-            int addr = newframe - frame_table; // pointer arithmetic
+            unsigned long addr = newframe - frame_table; // pointer arithmetic
+            printf("%lu got frame number %lu", instr_count-1, addr);
             //-> figure out if/what to do with old frame if it was mapped
             // see general outline in MM-slides under Lab3 header and writeup below
             // see whether and how to bring in the content of the access page.
@@ -165,7 +167,7 @@ void run_simulation(ifstream& f, vector<Process*>& procs, frame_t* frame_table) 
                 total_cost += ZERO_COST;
                 current_process->zeros++;
             }
-            printf(" MAP %d\n", addr);
+            printf(" MAP %lu\n", addr);
             total_cost += MAP_COST;
             current_process->maps++;
             // create frame->vpage reverse mapping
@@ -173,11 +175,14 @@ void run_simulation(ifstream& f, vector<Process*>& procs, frame_t* frame_table) 
             newframe->vpage = vpage;
             newframe->pte_ref = pte;
             newframe->age = 0;
+            newframe->timestamp_last_used = instr_count-1;
         }
         
         // check write protection
         if(operation == 'w') {
             pte->referenced = 1;
+            // TODO: can do frame table updates here?
+            // frame_table[pte->frame_number].timestamp_last_used = instr_count-1;
             total_cost += RW_COST;
             if(pte->write_protected) {
                 printf(" SEGPROT\n");
@@ -189,6 +194,7 @@ void run_simulation(ifstream& f, vector<Process*>& procs, frame_t* frame_table) 
         }
         if(operation == 'r') {
             pte->referenced = 1;
+            // frame_table[pte->frame_number].timestamp_last_used = instr_count-1;
             total_cost += RW_COST;
         }
         // simulate instruction execution by hardware by updating the R/M PTE bits
@@ -362,6 +368,7 @@ int main(int argc, char** argv) {
         break;
     
     case 'w':
+        PAGER = new WSPager();
         break;
     
     default:

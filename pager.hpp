@@ -4,7 +4,7 @@
 #include "pte.hpp"
 
 #define NRU_WINDOW 50
-#define NUM_NRU_CLASSES 4
+#define WS_TAU 50
 
 extern unsigned long instr_count;
 extern unsigned int MAX_FRAMES;
@@ -46,6 +46,14 @@ private:
     int hand;
 public:
     AGINGPager();
+    frame_t* select_victim_frame(frame_t* frame_table);
+};
+
+class WSPager : public Pager {
+private:
+    int hand;
+public:
+    WSPager();
     frame_t* select_victim_frame(frame_t* frame_table);
 };
 

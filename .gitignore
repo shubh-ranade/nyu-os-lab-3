@@ -1,6 +1,6 @@
 *
-!.cpp
-!.hpp
-!.sh
+!*.cpp
+!*.hpp
+!*.sh
 !Makefile
 !.gitignore
